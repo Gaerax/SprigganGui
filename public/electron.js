@@ -5,29 +5,12 @@ const url = require("url");
 
 
 /*************************************************************
- * py process
+ * Python RPC process
  *************************************************************/
-const PY_DIST_FOLDER = 'dist'
-const PY_FOLDER = '..'
-const PY_MODULE = 'spriggan-rpc' // without .py suffix
+const PY_DIST_FOLDER = 'bin'
 
 let pyProc = null
 let pyPort = null
-
-const guessPackaged = () => {
-	const fullPath = path.join(__dirname, PY_DIST_FOLDER)
-	return require('fs').existsSync(fullPath)
-}
-
-const getScriptPath = () => {
-	if (!guessPackaged()) {
-		return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py')
-	}
-	if (process.platform === 'win32') {
-		return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe')
-	}
-	return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE)
-}
 
 const selectPort = () => {
 	pyPort = 5235
@@ -35,22 +18,18 @@ const selectPort = () => {
 }
 
 const createPyProc = () => {
-	let script = getScriptPath()
 	let port = '' + selectPort()
 
 	console.log("starting RPC...")
 
-	if (guessPackaged()) {
-		pyProc = require('child_process').execFile(script, [port])
-		console.log("RPC started from EXE.")
-	} else {
-		pyProc = require('child_process').spawn('python', [script, port])
-		console.log("RPC started from Python.")
-	}
+	pyProc = require('child_process').execFile(path.join(__dirname, PY_DIST_FOLDER, "spriggan-rpc.exe"), [port])
  
 	if (pyProc != null) {
-		//console.log(pyProc)
-		console.log('child process success on port ' + port)
+		console.log(pyProc)
+		console.log('RPC process success on port ' + port)
+	}
+	else {
+		console.log("RPC process failed to start.")
 	}
 }
 

@@ -36,7 +36,7 @@ export default function GameCard( props: GameCardProps ) {
 					{props.game.title}
 				</Typography>
 				<Typography variant="body2" color="text.secondary">
-					{props.game.description}
+					{props.game.shortdescription}
 				</Typography>
 				</CardContent>
 			</CardActionArea>

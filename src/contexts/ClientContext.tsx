@@ -19,7 +19,7 @@ import {
 	DEFAULT_RELAY_URL,
 } from "../constants";
 import { AccountBalances } from "../helpers";
-import { getAppMetadata, getSdkError } from "@walletconnect/utils";
+import { getSdkError } from "@walletconnect/utils";
 import { getRequiredNamespaces } from "../helpers/namespaces";
 
 

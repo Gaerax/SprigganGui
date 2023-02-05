@@ -7,7 +7,6 @@ import { useWalletConnectClient } from "./ClientContext";
 import {
 	DEFAULT_CHIA_METHODS,
 } from "../constants";
-import { useChainData } from "./ChainDataContext";
 
 
 /**
@@ -54,10 +53,8 @@ export function JsonRpcContextProvider({children}: {
 	const [result, setResult] = useState<IFormattedRpcResponse | null>();
 	const [isTestnet, setIsTestnet] = useState(getLocalStorageTestnetFlag());
 
-	const { client, session, accounts, balances } =
+	const { client, session } =
 		useWalletConnectClient();
-
-	const { chainData } = useChainData();
 
 	const _createJsonRpcRequestHandler =
 		(

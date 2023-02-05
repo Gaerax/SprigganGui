@@ -12,6 +12,7 @@ import { green } from '@mui/material/colors';
 import { ClientContextProvider } from "./contexts/ClientContext";
 import { JsonRpcContextProvider } from "./contexts/JsonRpcContext";
 import { ChainDataContextProvider } from "./contexts/ChainDataContext";
+import { SearchContextProvider } from "./contexts/SearchContext";
 
 const theme = extendTheme({
 	colorSchemes: {
@@ -35,8 +36,10 @@ root.render(
 			<ChainDataContextProvider>
 				<ClientContextProvider>
 					<JsonRpcContextProvider>
-						<CssBaseline />
-						<App />
+						<SearchContextProvider>
+							<CssBaseline />
+							<App />
+						</SearchContextProvider>
 					</JsonRpcContextProvider>
 				</ClientContextProvider>
 			</ChainDataContextProvider>

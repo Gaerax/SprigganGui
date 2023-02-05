@@ -1,4 +1,5 @@
 import * as React from 'react';
+import ReactMarkdown from 'react-markdown'
 import CloseIcon from '@mui/icons-material/Close';
 import {
 	Grid, Tab, Tabs, Dialog, Container, Typography, Button,
@@ -121,26 +122,26 @@ export default function StorePage( props: StorePageProps ) {
 			</Toolbar>
 			</AppBar>
 			<Container fixed>
-				<Grid container height={420} sx={{ m: 2 }}>
-					<AppBar position="static">
-						<Tabs
-							value={tab}
-							onChange={handleTabChange}
-							indicatorColor="secondary"
-							textColor="inherit"
-							variant="fullWidth"
-						>
-							<Tab label="Trailer" {...TabProps(0)} />
-							<Tab label="Screenshots" {...TabProps(1)} />
-						</Tabs>
-					</AppBar>
-					<Grid id="mediaSection" item xs={13} sm={7} sx={{ height: '100%' }}>
+				<AppBar position="static">
+					<Tabs
+						value={tab}
+						onChange={handleTabChange}
+						indicatorColor="secondary"
+						textColor="inherit"
+						variant="fullWidth"
+					>
+						<Tab label="Trailer" {...TabProps(0)} />
+						<Tab label="Screenshots" {...TabProps(1)} />
+					</Tabs>
+				</AppBar>
+				<Grid container height={420} sx={{ width: '100%', m: 0 }}>
+					<Grid id="mediaSection" item xs={12} md={8} sx={{ m:0, p: 0, height: '100%' }}>
 						<TabPanel value={tab} index={0}>
-							<Card sx={{ p: 2, height: '100%' }} >
+							<Card sx={{ m: 0, p: 2, height: '100%' }} >
 								<CardMedia
 									component="iframe"
 									src={(props.game.trailersource === 'youtube') ?"https://www.youtube.com/embed/" + props.game.trailer + "?autoplay=1&origin=http://.com": ""}
-									height={340}
+									height={'360'}
 								/>
 							</Card>
 						</TabPanel>
@@ -148,7 +149,7 @@ export default function StorePage( props: StorePageProps ) {
 							{price}
 						</TabPanel>
 					</Grid>
-					<Grid id="infoSection" item xs={10} sm={5}  sx={{ height: '100%'}}>
+					<Grid id="infoSection" item xs={12} md={4}  sx={{ height: '100%'}}>
 						<Stack sx={{ height: '100%'}}>
 							<Card sx={{ p: 1, m: 1, height: '60%' }}>
 								<Typography p={1} variant="h5">{props.game.title}</Typography>
@@ -174,20 +175,19 @@ export default function StorePage( props: StorePageProps ) {
 											sx={{ width: 150 }}
 											renderInput={(params) => <TextField {...params} />}
 											onChange={(event: any, newAsset: string | null) => {
-												if (newAsset) {
+												if (newAsset && newAsset !== asset) {
 													setAsset(newAsset);
-												} else {
-													setAsset('XCH');
 												}
 											}}
 										/>
 									</Grid>
 								</Grid>
-								
-								
 							</Card>
 						</Stack>
 					</Grid>
+					<Card sx={{ m: 1, p: 4, width: '100%' }}>
+						<ReactMarkdown children={props.game.longdescription}/>
+					</Card>
 				</Grid>
 			</Container>
 		</Dialog>

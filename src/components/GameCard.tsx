@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import { Dispatch, SetStateAction } from 'react';
 
-import type Game from '../types/Game';
+import type Game from '../spriggan-shared/types/Game';
 import StorePage, { StorePageProps } from './StorePage';
 
 export type GameCardProps = {

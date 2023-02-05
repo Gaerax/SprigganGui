@@ -12,7 +12,7 @@ import { sha256 } from 'js-sha256';
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { Buffer } from 'buffer';
 
-import type Game from '../types/Game';
+import type Game from '../spriggan-shared/types/Game';
 
 const Transition = React.forwardRef((props: SlideProps, ref) => {
 	return <Slide direction="up" ref={ref} {...props} />;

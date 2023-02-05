@@ -1,5 +1,5 @@
 import { Grid } from "@mui/material";
-import Game from "../types/Game";
+import Game from "../spriggan-shared/types/Game";
 import GameCard from "./GameCard";
 
 const GameGrid = (

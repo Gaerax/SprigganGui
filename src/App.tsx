@@ -5,12 +5,13 @@ import axios from 'axios';
 
 import { Button, Box } from "@mui/material";
 import MainTopBar from "./components/MainTopBar";
-import Game from "./types/Game";
+import Game from "./spriggan-shared/types/Game";
 
 import { useWalletConnectClient } from "./contexts/ClientContext";
 import { useJsonRpc } from "./contexts/JsonRpcContext";
 import GameGrid from "./components/GameGrid";
 import { useSearch } from "./contexts/SearchContext";
+import { SearchParams } from "./spriggan-shared/types/SearchTypes";
 
 function App() {
 	const [searchTerm, setSearchTerm] = useState<string>("Sprigga");
@@ -24,12 +25,10 @@ function App() {
 		if (searchTerm !== "") {
 			clearTimeout(searchDebounce)
 			setSearchDebounce(setTimeout(async () => {
-				setSearchResults(await search.byTerm({term: searchTerm}))
+				setSearchResults(await search({titleTerm: searchTerm} as SearchParams))
 			}, 300));
 		}
 	}, [searchTerm]);
-
-	
 
 	useEffect(() => {
 		document.title = `Spriggan Marketplace`;

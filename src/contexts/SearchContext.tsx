@@ -6,7 +6,8 @@ import {
 	useContext,
 	useState,
 } from "react";
-import Game from "../types/Game";
+import Game from "../spriggan-shared/types/Game";
+import { SearchParams } from "../spriggan-shared/types/SearchTypes";
 
 /**
  * Types
@@ -14,14 +15,8 @@ import Game from "../types/Game";
 interface IContext {
 	apiUrl: string,
 	setApiUrl: React.Dispatch<React.SetStateAction<string>>,
-	search: {
-		byTerm: SearchCallback,
-	}
+	search: SearchCallback,
 }
-
-export type SearchParams = {
-	term: string;
-};
 
 type SearchCallback = (params: SearchParams) => Promise<Game[]>;
 
@@ -36,9 +31,9 @@ export const SearchContext = createContext<IContext>({} as IContext);
 export function SearchContextProvider({children}: {
 	children: ReactNode | ReactNode[];
 }) {
-	const [apiUrl, setApiUrl] = useState('http://10.0.0.2:5233') 
+	const [apiUrl, setApiUrl] = useState('http://10.0.0.2:5233')
 
-	const toGameList = (hits: any) => {
+	const hitsToGameList = (hits: any) => {
 		const games = new Array<Game>()
 		if (hits) {
 			hits.forEach((hit: any) => {
@@ -48,17 +43,9 @@ export function SearchContextProvider({children}: {
 		return games
 	}
 
-	const search = {
-		
-		mostRecent: async (params: SearchParams) => {
-			const response = await axios.get(`${apiUrl}/search`, { params: { term: params.term } })
-			return toGameList(response.data.hits.hits);
-		},
-
-		byTerm: async (params: SearchParams) => {
-			const response = await axios.get(`${apiUrl}/search`, { params: { term: params.term } })
-			return toGameList(response.data.hits.hits);
-		}
+	const search = async (params: SearchParams) => {
+		const response = await axios.get(`${apiUrl}/search`, { params: { term: params.titleTerm } })
+		return hitsToGameList(response.data.hits.hits);
 	}
 
 	return (

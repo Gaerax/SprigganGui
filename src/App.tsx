@@ -3,7 +3,7 @@ import './App.css';
 
 import axios from 'axios';
 
-import { Button, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import MainTopBar from "./components/MainTopBar";
 import Game from "./spriggan-shared/types/Game";
 
@@ -14,13 +14,13 @@ import { useSearch } from "./contexts/SearchContext";
 import { SearchParams } from "./spriggan-shared/types/SearchTypes";
 
 function App() {
-	const [searchTerm, setSearchTerm] = useState<string>("Sprigga");
+	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [searchDebounce, setSearchDebounce] = useState<NodeJS.Timeout>(setTimeout(async () => {}, 100));
-	const [searchResults, setSearchResults] = useState<Game[]>([]);
 	const [activeOffer, setActiveOffer] = useState<string>("");
 
-	const { search } = useSearch()
-
+	const { search, mostRecent } = useSearch()
+	
+	const [searchResults, setSearchResults] = useState<Game[]>([]);
 	useEffect(() => {
 		if (searchTerm !== "") {
 			clearTimeout(searchDebounce)
@@ -29,6 +29,14 @@ function App() {
 			}, 300));
 		}
 	}, [searchTerm]);
+
+	const [mostRecentResults, setMostRecentResults] = useState<Game[]>([]);
+	useEffect(() => {
+		async function fetchData() {
+			setMostRecentResults(await mostRecent({} as SearchParams));
+		  }
+		  fetchData();
+	}, [mostRecent]);
 
 	useEffect(() => {
 		document.title = `Spriggan Marketplace`;
@@ -102,40 +110,8 @@ function App() {
 	return (
 			<Box>
 				{MainTopBar(session, onConnect, onPing, disconnect, (event) => {setSearchTerm(event.target.value)})}
-				{GameGrid(searchResults, executeOffer, setActiveOffer)}
-
-				<Button onClick={() => {
-					const game = {
-						"productid": "517B1E97-F1AF-4824-A7B9-8D85E281D7B8",
-						"datastoreid": "56785678",
-						"title": "NEW GAME",
-						"publisher": "Gaerax",
-						"developer": "Gaerax",
-						"description": "A simple pong game",
-						"longdescription": "A simple game of pong made to demonstrate the capabilities of spriggan",
-						"website": "spriggan.io",
-						"twitter": "@gaeraxx",
-						"discord": "http://discord.com/iou1h34",
-						"instagram": "@gaeraxx",
-						"publisherdid": "did:chia:19qf3g9876t0rkq7tfdkc28cxfy424yzanea29rkzylq89kped9hq3q7wd2",
-						"contentrating": "E",
-						"capsuleimage": "https://i.imgur.com/Z8UT1Lx.png",
-						"icon": "https://i.imgur.com/Z8UT1Lx.png",
-						"tags": "simple, pong, casual",
-						"status": "Complete",
-						"version": "1.0",
-						"screenshots": "https://i.guim.co.uk/img/static/sys-images/Technology/Pix/pictures/2008/04/16/Pong460x276.jpg?width=465&quality=85&dpr=1&s=none",
-						"paymentaddress": "xch1w89m85c6kr7w4jtff5r53lfardjcawsnrdnxh5ke9aeqnaeddphqjez9jh",
-						"password": "password123"
-					}
-					axios.post(`http://localhost:3000/requestlisting`, { params: { game: game } })
-						.then(res => {
-							console.log(res);
-						}
-					)
-				}}>
-					execute
-				</Button>
+				{GameGrid("Search Results", searchResults, executeOffer, setActiveOffer)}
+				{GameGrid("Recently Updated", mostRecentResults, executeOffer, setActiveOffer)}
 			</Box>
 	);
 }

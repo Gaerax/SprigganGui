@@ -1,7 +1,8 @@
 // Module to control the application lifecycle and the native browser window.
-const { app, BrowserWindow, protocol } = require("electron");
+const { app, BrowserWindow, Menu, MenuItem, protocol, dialog } = require("electron");
 const path = require("path");
 const url = require("url");
+const { prepareDialog, openDialog } = require('electron-custom-dialog')
 
 
 /*************************************************************
@@ -50,8 +51,8 @@ app.on('will-quit', exitPyProc)
 // Create the native browser window.
 function createWindow() {
 	const mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
+		width: 1200,
+		height: 800,
 		// Set the path of an additional "preload" script that can be used to
 		// communicate between node-land and browser-land.
 		webPreferences: {
@@ -62,19 +63,164 @@ function createWindow() {
 	// In production, set the initial browser path to the local bundle generated
 	// by the Create React App build process.
 	// In development, set it to localhost to allow live/hot-reloading.
-	const appURL = app.isPackaged
-		? url.format({
-				pathname: path.join(__dirname, "index.html"),
-				protocol: "file:",
-				slashes: true,
-			})
-		: "http://localhost:3000";
-	mainWindow.loadURL(appURL);
+	// const appURL = app.isPackaged
+	// 	? url.format({
+	// 			pathname: path.join(__dirname, "index.html"),
+	// 			protocol: "file:",
+	// 			slashes: true,
+	// 		})
+	// 	: "http://localhost:3000";
+	// mainWindow.loadURL(appURL);
 
 	// Automatically open Chrome's DevTools in development mode.
 	if (!app.isPackaged) {
 		mainWindow.webContents.openDevTools();
 	}
+
+	prepareDialog({
+		name: 'Add URI Dialog',
+		load(win) {
+			win.loadFile(path.join(__dirname, 'addUriDialog.html'))
+		}
+	})
+
+	const menuTemplate = [
+		{
+			label: 'File',
+			submenu: [
+				{
+					role: 'set'
+				}
+			]
+		},
+	
+		{
+			label: 'Edit',
+			submenu: [
+				{
+					role: 'undo'
+				},
+				{
+					role: 'redo'
+				},
+				{
+					type: 'separator'
+				},
+				{
+					role: 'cut'
+				},
+				{
+					role: 'copy'
+				},
+				{
+					role: 'paste'
+				}
+			]
+		},
+		
+		{
+			label: 'View',
+			submenu: [
+				{
+					role: 'reload'
+				},
+				{
+					role: 'toggledevtools'
+				},
+				{
+					type: 'separator'
+				},
+				{
+					role: 'resetzoom'
+				},
+				{
+					role: 'zoomin'
+				},
+				{
+					role: 'zoomout'
+				},
+				{
+					type: 'separator'
+				},
+				{
+					role: 'togglefullscreen'
+				}
+			]
+		},
+		
+		{
+			label: 'Window',
+			submenu: [
+				{
+					role: 'minimize'
+				},
+				{
+					role: 'close'
+				}
+			]
+		},
+	
+		{
+			label: 'Help',
+			submenu: [
+				{
+					label: 'About Spriggan Client'
+				}
+			]
+		},
+	
+		{
+			label: 'Library',
+			submenu: [
+				{
+					label: 'Games',
+					click: () => {
+						mainWindow.loadURL("http://localhost:3000");
+					}
+				},
+				{
+					type: 'separator'
+				},
+				{
+					label: 'Add DApp...',
+					click: () => {
+						console.log("adding menu item")
+					}
+				}
+			]
+		},
+	
+		{
+			label: 'Apps',
+			submenu: [
+				{
+					label: 'Spriggan Marketplace',
+					click: () => {
+						mainWindow.loadURL("http://localhost:3000");
+					}
+				},
+				{
+					label: 'Add DApp',
+					click: (menuItem) => {
+						openDialog('myDialog').then((result) => {
+							if (result) {
+								menuItem.menu.append(new MenuItem ({
+									label: result.name,
+									click() { 
+										console.log(result.uri)
+										mainWindow.loadURL(result.uri);
+									}
+								}));
+							}
+						});
+					}
+				}
+			]
+		}
+	]
+	
+	const menu = Menu.buildFromTemplate(menuTemplate)
+	Menu.setApplicationMenu(menu)
 }
 
 // Setup a local proxy to adjust the paths of requested files when loading
@@ -133,3 +279,4 @@ app.on("web-contents-created", (event, contents) => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+

@@ -16,6 +16,7 @@ interface IContext {
 	apiUrl: string,
 	setApiUrl: React.Dispatch<React.SetStateAction<string>>,
 	search: SearchCallback,
+	mostRecent: SearchCallback,
 }
 
 type SearchCallback = (params: SearchParams) => Promise<Game[]>;
@@ -31,7 +32,7 @@ export const SearchContext = createContext<IContext>({} as IContext);
 export function SearchContextProvider({children}: {
 	children: ReactNode | ReactNode[];
 }) {
-	const [apiUrl, setApiUrl] = useState('http://10.0.0.2:5233')
+	const [apiUrl, setApiUrl] = useState('http://localhost:5233')
 
 	const hitsToGameList = (hits: any) => {
 		const games = new Array<Game>()
@@ -44,7 +45,12 @@ export function SearchContextProvider({children}: {
 	}
 
 	const search = async (params: SearchParams) => {
-		const response = await axios.get(`${apiUrl}/search`, { params: { term: params.titleTerm } })
+		const response = await axios.get(`${apiUrl}/games/search`, { params: { titleTerm: params.titleTerm } })
+		return hitsToGameList(response.data.hits.hits);
+	}
+
+	const mostRecent = async (params: SearchParams) => {
+		const response = await axios.get(`${apiUrl}/games/mostRecent`, { params: {} })
 		return hitsToGameList(response.data.hits.hits);
 	}
 
@@ -54,6 +60,7 @@ export function SearchContextProvider({children}: {
 				apiUrl,
 				setApiUrl,
 				search,
+				mostRecent,
 			}}
 			>
 			{children}

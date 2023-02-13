@@ -140,10 +140,14 @@ export function ClientContextProvider({children}: {
 		if (typeof session === "undefined") {
 			throw new Error("Session is not connected");
 		}
-		await client.disconnect({
-			topic: session.topic,
-			reason: getSdkError("USER_DISCONNECTED"),
-		});
+		try {
+			await client.disconnect({
+				topic: session.topic,
+				reason: getSdkError("USER_DISCONNECTED"),
+			});
+		} catch (error) {
+			console.log(error);
+		}
 		// Reset app state after disconnect.
 		reset();
 	}, [client, session]);

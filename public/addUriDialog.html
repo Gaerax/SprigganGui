@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Add New DApp</title>
+	</head>
+	<body>
+		<div id="root">
+			Name:<input type="text" id="name" name="name">
+			<p></p>
+			URI: <input type="text" id="uri" name="uri">
+			<button id="cancel">Cancel</button>
+			<button id="add">Add</button>
+		</div>
+		<script>
+			const {sendResponse, waitProps} = require('electron-custom-dialog')
+			const name = document.getElementById('name')
+			const uri = document.getElementById('uri')
+			const cancel = document.getElementById('cancel')
+			const add = document.getElementById('add')
+		
+			waitProps().then((props) => {
+				cancel.addEventListener('click', () => {
+					sendResponse({ success: false, name: name.value, uri: uri.value })
+				});
+				add.addEventListener('click', () => {
+					sendResponse({ success: true, name: name.value, uri: uri.value })
+				});
+			})
+	
+		</script> 
+	</body>
+</html>

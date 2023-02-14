@@ -191,18 +191,20 @@ function createWindow() {
 		},
 	
 		{
-			label: 'Apps',
+			label: 'DApps',
 			submenu: [
 				{
 					label: 'Spriggan Marketplace',
 					click: () => {
-						mainWindow.loadURL("http://localhost:3000");
+						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-marketplace-dapp/index.html");
 					}
 				},
 				{
 					label: 'Add DApp',
 					click: (menuItem) => {
-						openDialog('myDialog').then((result) => {
+						let name = "";
+						let uri = "";
+						openDialog('myDialog', {name, uri}).then((result) => {
 							if (result) {
 								menuItem.menu.append(new MenuItem ({
 									label: result.name,

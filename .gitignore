@@ -12,6 +12,7 @@
 /build
 /dist
 /public/bin
+/public/dapps
 
 # misc
 .DS_Store

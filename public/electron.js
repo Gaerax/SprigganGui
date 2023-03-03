@@ -2,6 +2,7 @@
 const { app, BrowserWindow, Menu, MenuItem, protocol, dialog } = require("electron");
 const path = require("path");
 const url = require("url");
+const axios = require("axios")
 const { prepareDialog, openDialog } = require('electron-custom-dialog')
 
 
@@ -21,12 +22,11 @@ const selectPort = () => {
 const createPyProc = () => {
 	let port = '' + selectPort()
 
-	console.log("starting RPC...")
+	console.log("Starting  RPC...")
 
-	pyProc = require('child_process').execFile(path.join(__dirname, PY_DIST_FOLDER, "spriggan-rpc.exe"), [port])
- 
+	pyProc = require('child_process').spawn(path.join(__dirname, PY_DIST_FOLDER, "spriggan-rpc.exe"), [port])
+
 	if (pyProc != null) {
-		console.log(pyProc)
 		console.log('RPC process success on port ' + port)
 	}
 	else {
@@ -35,7 +35,8 @@ const createPyProc = () => {
 }
 
 const exitPyProc = () => {
-	pyProc.kill()
+	console.log("Killing Spriggan RPC", pyProc.pid)
+	process.terminate(pyProc.pid);
 	pyProc = null
 	pyPort = null
 }
@@ -48,16 +49,47 @@ app.on('will-quit', exitPyProc)
  * window management
  *************************************************************/
 
+function UpsertKeyValue(obj, keyToChange, value) {
+	const keyToChangeLower = keyToChange.toLowerCase();
+	for (const key of Object.keys(obj)) {
+		if (key.toLowerCase() === keyToChangeLower) {
+			// Reassign old key
+			obj[key] = value;
+			// Done
+			return;
+		}
+	}
+	// Insert at end instead
+	obj[keyToChange] = value;
+}
+
 // Create the native browser window.
 function createWindow() {
 	const mainWindow = new BrowserWindow({
-		width: 1200,
-		height: 800,
+		width: 1600,
+		height: 1000,
 		// Set the path of an additional "preload" script that can be used to
 		// communicate between node-land and browser-land.
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js"),
 		},
+	});
+
+	mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+		(details, callback) => {
+			const { requestHeaders } = details;
+			UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*']);
+			callback({ requestHeaders });
+		},
+	);
+	
+	mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+		const { responseHeaders } = details;
+		UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*']);
+		UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*']);
+		callback({
+			responseHeaders,
+		});
 	});
 
 	// In production, set the initial browser path to the local bundle generated
@@ -175,7 +207,7 @@ function createWindow() {
 				{
 					label: 'Games',
 					click: () => {
-						mainWindow.loadURL("http://localhost:3000");
+						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-library-dapp");
 					}
 				},
 				{
@@ -185,6 +217,15 @@ function createWindow() {
 					label: 'Add DApp...',
 					click: () => {
 						console.log("adding menu item")
+					}
+				},
+				{
+					label: 'download',
+					click: async () => {
+						axios.get(`http://localhost:5235`, { params: { game: { title: "" } } })
+							.then(res => {
+								console.log("Response download: ", res)
+						})
 					}
 				}
 			]
@@ -196,7 +237,7 @@ function createWindow() {
 				{
 					label: 'Spriggan Marketplace',
 					click: () => {
-						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-marketplace-dapp/index.html");
+						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-marketplace-dapp");
 					}
 				},
 				{

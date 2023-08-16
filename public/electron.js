@@ -1,9 +1,8 @@
 // Module to control the application lifecycle and the native browser window.
-const { app, BrowserWindow, Menu, MenuItem, protocol, dialog } = require("electron");
+const { app, BrowserWindow, Menu, protocol } = require("electron");
 const path = require("path");
-const url = require("url");
-const axios = require("axios")
-const { prepareDialog, openDialog } = require('electron-custom-dialog')
+const { spawn } = require('child_process');
+const { get } = require("http");
 
 
 /*************************************************************
@@ -22,21 +21,41 @@ const selectPort = () => {
 const createPyProc = () => {
 	let port = '' + selectPort()
 
-	console.log("Starting  RPC...")
+	console.log("Starting  RPC...", path.join("./", "spriggan-rpc.exe"));
 
-	pyProc = require('child_process').spawn(path.join(__dirname, PY_DIST_FOLDER, "spriggan-rpc.exe"), [port])
+	pyProc = spawn(path.join("./", "spriggan-rpc.exe"), [port]);
+
+	pyProc.stdout.on('data', function (data) {
+		console.log("RPC: " + data.toString());
+	});
+
+	pyProc.stderr.on('data', (data) => {
+		console.error(`RPC error: ${data}`);
+	});
+
+	pyProc.on('close', (code) => {
+		console.log(`RPC process exited with code ${code}`);
+	});
 
 	if (pyProc != null) {
-		console.log('RPC process success on port ' + port)
+		console.log('RPC process success on port ' + port);
 	}
 	else {
-		console.log("RPC process failed to start.")
+
+		console.log("RPC process failed to start.");
 	}
 }
 
 const exitPyProc = () => {
 	console.log("Killing Spriggan RPC", pyProc.pid)
+	pyProc.kill()
+	get('http://localhost:' + pyPort + '/kill', (resp) => {
+		console.log("RPC kill response: " + resp);
+	}).on("error", (err) => {
+		console.log("Error: " + err.message);
+	});
 	process.terminate(pyProc.pid);
+	process.kill(pyProc.pid);
 	pyProc = null
 	pyPort = null
 }
@@ -68,6 +87,8 @@ function createWindow() {
 	const mainWindow = new BrowserWindow({
 		width: 1600,
 		height: 1000,
+		title: "Spriggan Client v0.2",
+		darkTheme: true,
 		// Set the path of an additional "preload" script that can be used to
 		// communicate between node-land and browser-land.
 		webPreferences: {
@@ -79,14 +100,13 @@ function createWindow() {
 		(details, callback) => {
 			const { requestHeaders } = details;
 			UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*']);
+			UpsertKeyValue(requestHeaders, 'Access-Control-Allow-Credentials', true);
 			callback({ requestHeaders });
 		},
 	);
 	
 	mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
 		const { responseHeaders } = details;
-		UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*']);
-		UpsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*']);
 		callback({
 			responseHeaders,
 		});
@@ -101,20 +121,15 @@ function createWindow() {
 	// 			protocol: "file:",
 	// 			slashes: true,
 	// 		})
-	// 	: "http://localhost:3000";
-	// mainWindow.loadURL(appURL);
+	// 	: "http://localhost:3023";
+	
+	// mainWindow.loadURL("http://localhost:3023");
 
 	// Automatically open Chrome's DevTools in development mode.
 	if (!app.isPackaged) {
 		mainWindow.webContents.openDevTools();
 	}
-
-	prepareDialog({
-		name: 'Add URI Dialog',
-		load(win) {
-			win.loadFile(path.join(__dirname, 'addUriDialog.html'))
-		}
-	})
+	mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-dapp/index.html"));
 
 	const menuTemplate = [
 		{
@@ -196,70 +211,31 @@ function createWindow() {
 			label: 'Help',
 			submenu: [
 				{
-					label: 'About Spriggan Client'
+					label: 'About Spriggan Client',
+					click: () => {
+						mainWindow.webContents.loadFile(path.join(__dirname, "about.html"))
+					}
 				}
 			]
 		},
-	
 		{
 			label: 'Library',
-			submenu: [
-				{
-					label: 'Games',
-					click: () => {
-						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-library-dapp");
-					}
-				},
-				{
-					type: 'separator'
-				},
-				{
-					label: 'Add DApp...',
-					click: () => {
-						console.log("adding menu item")
-					}
-				},
-				{
-					label: 'download',
-					click: async () => {
-						axios.get(`http://localhost:5235`, { params: { game: { title: "" } } })
-							.then(res => {
-								console.log("Response download: ", res)
-						})
-					}
-				}
-			]
+			click: () => {
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-library-dapp/index.html"))
+			}
 		},
-	
 		{
-			label: 'DApps',
-			submenu: [
-				{
-					label: 'Spriggan Marketplace',
-					click: () => {
-						mainWindow.loadURL("http://localhost:3000/dapps/spriggan-marketplace-dapp");
-					}
-				},
-				{
-					label: 'Add DApp',
-					click: (menuItem) => {
-						let name = "";
-						let uri = "";
-						openDialog('myDialog', {name, uri}).then((result) => {
-							if (result) {
-								menuItem.menu.append(new MenuItem ({
-									label: result.name,
-									click() { 
-										console.log(result.uri)
-										mainWindow.loadURL(result.uri);
-									}
-								}));
-							}
-						});
-					}
-				}
-			]
-		}
+			label: 'Marketplace',
+			click: () => {
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-dapp/index.html"))
+			}
+		},
+		{
+			label: 'Publishing',
+			click: () => {
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-publishing-dapp/index.html"))
+			}
+		},
 	]
 	
 	const menu = Menu.buildFromTemplate(menuTemplate)
@@ -309,16 +285,16 @@ app.on("window-all-closed", function () {
 // If your app has no need to navigate or only needs to navigate to known pages,
 // it is a good idea to limit navigation outright to that known scope,
 // disallowing any other kinds of navigation.
-const allowedNavigationDestinations = "https://my-electron-app.com";
-app.on("web-contents-created", (event, contents) => {
-	contents.on("will-navigate", (event, navigationUrl) => {
-		const parsedUrl = new URL(navigationUrl);
+// const allowedNavigationDestinations = "https://my-electron-app.com";
+// app.on("web-contents-created", (event, contents) => {
+// 	contents.on("will-navigate", (event, navigationUrl) => {
+// 		const parsedUrl = new URL(navigationUrl);
 
-		if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
-			event.preventDefault();
-		}
-	});
-});
+// 		if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
+// 			event.preventDefault();
+// 		}
+// 	});
+// });
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

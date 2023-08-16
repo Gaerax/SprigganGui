@@ -1,11 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { BrowserRouter } from "react-router-dom";
 
 export const App = () => (
 	<BrowserRouter>
 		<div>
 			<Routes>
-			{DApps()}
+				<Route path="/" element={<Navigate to='dapps/spriggan-marketplace-dapp' />} />
+				{DApps()}
 			</Routes>
 		</div>
 	</BrowserRouter>
@@ -13,19 +15,17 @@ export const App = () => (
 
 
 const DApps = () => (
-	<div>
-		<Route path={"dapps/:dapp"} loader={
-			async ({ params }) => {
-				console.log("dapp found")
-				const dapp = fetch(
-					`./dapps/${params.dapp}/index.html`
-				);
-				console.log("dapp found", dapp)
-				if (dapp) {
-					return dapp;
-				}
-				return <h1>DApp not Found</h1>;
+	<Route path={"dapps/:dapp"} loader={
+		async ({ params }) => {
+			console.log("dapp found")
+			const dapp = fetch(
+				`./dapps/${params.dapp}/index.html`
+			);
+			console.log("dapp found", dapp)
+			if (dapp) {
+				return dapp;
 			}
-		} />
-	</div>
+			return <h1>DApp not Found</h1>;
+		}
+	} />
 );

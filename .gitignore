@@ -3,6 +3,8 @@
 spriggan-config.json
 spriggan-rpc.exe
 
+spriggan-data/
+
 # dependencies
 /node_modules
 /.pnp

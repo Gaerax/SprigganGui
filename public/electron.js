@@ -26,11 +26,7 @@ const createPyProc = () => {
 	pyProc = spawn(path.join("./", "spriggan-rpc.exe"), [port]);
 
 	pyProc.stdout.on('data', function (data) {
-		console.log("RPC: " + data.toString());
-	});
-
-	pyProc.stderr.on('data', (data) => {
-		console.error(`RPC error: ${data}`);
+		console.log(`RPC: ${data}`);
 	});
 
 	pyProc.on('close', (code) => {

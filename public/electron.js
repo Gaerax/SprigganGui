@@ -21,9 +21,9 @@ const selectPort = () => {
 const createPyProc = () => {
 	let port = '' + selectPort()
 
-	console.log("Starting  RPC...", path.join("./", "spriggan-rpc.exe"));
+	console.log("Starting  RPC...", path.join("./", "gosti-rpc.exe"));
 
-	pyProc = spawn(path.join("./", "spriggan-rpc.exe"), [port]);
+	pyProc = spawn(path.join("./", "gosti-rpc.exe"), [port]);
 
 	pyProc.stdout.on('data', function (data) {
 		console.log(`RPC: ${data}`);
@@ -43,7 +43,7 @@ const createPyProc = () => {
 }
 
 const exitPyProc = () => {
-	console.log("Killing Spriggan RPC", pyProc.pid)
+	console.log("Killing Gosti RPC", pyProc.pid)
 	pyProc.kill()
 	get('http://localhost:' + pyPort + '/kill', (resp) => {
 		console.log("RPC kill response: " + resp);
@@ -83,7 +83,7 @@ function createWindow() {
 	const mainWindow = new BrowserWindow({
 		width: 1600,
 		height: 1000,
-		title: "Spriggan Client v0.2",
+		title: "Gosti Client v0.2",
 		darkTheme: true,
 		// Set the path of an additional "preload" script that can be used to
 		// communicate between node-land and browser-land.
@@ -125,7 +125,7 @@ function createWindow() {
 	if (!app.isPackaged) {
 		mainWindow.webContents.openDevTools();
 	}
-	mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-dapp/index.html"));
+	mainWindow.webContents.loadFile(path.join(__dirname, "dapps/gosti-marketplace-dapp/index.html"));
 
 	const menuTemplate = [
 		{
@@ -207,7 +207,7 @@ function createWindow() {
 			label: 'Help',
 			submenu: [
 				{
-					label: 'About Spriggan Client',
+					label: 'About Gosti Client',
 					click: () => {
 						mainWindow.webContents.loadFile(path.join(__dirname, "about.html"))
 					}
@@ -217,19 +217,19 @@ function createWindow() {
 		{
 			label: 'Library',
 			click: () => {
-				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-library-dapp/index.html"))
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/gosti-library-dapp/index.html"))
 			}
 		},
 		{
 			label: 'Marketplace',
 			click: () => {
-				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-dapp/index.html"))
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/gosti-marketplace-dapp/index.html"))
 			}
 		},
 		{
 			label: 'Publishing',
 			click: () => {
-				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/spriggan-marketplace-publishing-dapp/index.html"))
+				mainWindow.webContents.loadFile(path.join(__dirname, "dapps/gosti-marketplace-publishing-dapp/index.html"))
 			}
 		},
 	]

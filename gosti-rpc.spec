@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(
-    ['spriggan-rpc.py'],
+    ['gosti-rpc.py'],
     pathex=[],
     binaries=[],
     datas=[('../../chia-blockchain/chia/wallet/puzzles/*', 'chia/wallet/puzzles/'), ('../../chia-blockchain/chia/wallet/util/*', 'chia/wallet/util/'), ('../../chia-blockchain/chia/wallet/vc_wallet/vc_puzzles*', 'chia/wallet/vc_wallet/vc_puzzles/')],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='spriggan-rpc',
+    name='gosti-rpc',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

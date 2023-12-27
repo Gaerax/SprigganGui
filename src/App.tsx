@@ -6,7 +6,7 @@ export const App = () => (
 	<BrowserRouter>
 		<div>
 			<Routes>
-				<Route path="/" element={<Navigate to='dapps/spriggan-marketplace-dapp' />} />
+				<Route path="/" element={<Navigate to='dapps/gosti-marketplace-dapp' />} />
 				{DApps()}
 			</Routes>
 		</div>

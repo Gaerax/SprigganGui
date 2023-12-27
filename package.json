@@ -1,9 +1,9 @@
 {
-  "name": "spriggan-client",
+  "name": "gosti-client",
   "version": "0.2.0",
   "author": "Gaerax <gaerax@gmail.com>",
   "license": "Apache-2.0",
-  "description": "Spriggan Client",
+  "description": "Gosti Client",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.5",
@@ -66,7 +66,7 @@
   "main": "./public/electron.js",
   "homepage": "./",
   "build": {
-    "appId": "com.spriggan.client",
+    "appId": "com.gosti.client",
     "files": [
       "build/**/*",
       "node_modules/**/*"
@@ -75,8 +75,8 @@
       "buildResources": "public"
     },
     "extraFiles": [
-      "spriggan-config.json",
-      "spriggan-rpc.exe"
+      "gosti-config.json",
+      "gosti-rpc.exe"
     ],
     "mac": {
       "target": "dmg"
